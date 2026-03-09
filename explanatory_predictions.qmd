@@ -8,6 +8,7 @@ editor: visual
 
 library(forecast)
 library(tidyverse)
+library(prophet)
 
 growth <- vroom::vroom("CompanyGrowth.csv")
 ```
@@ -48,14 +49,88 @@ for (i in 1:4){acf(vars_lst[[i]])}
 ```
 
 ```{r}
-growth$Time <- growth$Year+((growth$Qrtr-1)*0.25)
 
-X_noInt <- model.matrix( ~ bs(Time, knots = cuts, degree = 3)+dow + Year + mon, data = yt_feature)[,-1]
+# Predict only Q1 2025 (i.e., 2025-01-01)
+future_2025 <- tibble(ds = as.Date("2025-01-01"))
 
-S <- 365
-ts_data <- ts(data = log(yt_feature$MinutesViewed),
-              frequency = S)
+```
 
-arima_mdl <- forecast::auto.arima(y = ts_data,
-                        xreg = X_noInt)
+```{r}
+
+# Convert Year + Qrtr to a proper quarterly date (first day of the quarter)
+grow_prod <- growth %>%
+  mutate(
+    month = (Qrtr - 1) * 3 + 1,                     # 1, 4, 7, 10
+    ds = as.Date(paste(Year, month, 1, sep = "-"))
+  ) %>%
+  select(ds, y = Production)
+
+# Fit Prophet
+proph_prod <- prophet(grow_prod)
+
+
+prod_pred <- predict(proph_prod, future_2025)$yhat
+
+prod_pred
+
+```
+
+```{r}
+# Convert Year + Qrtr to a proper quarterly date (first day of the quarter)
+grow_inc <- growth %>%
+  mutate(
+    month = (Qrtr - 1) * 3 + 1,                     # 1, 4, 7, 10
+    ds = as.Date(paste(Year, month, 1, sep = "-"))
+  ) %>%
+  select(ds, y = Income)
+
+# Fit Prophet
+proph_inc <- prophet(grow_inc)
+
+
+inc_pred <- predict(proph_inc, future_2025)$yhat
+
+inc_pred
+
+```
+
+```{r}
+
+# Convert Year + Qrtr to a proper quarterly date (first day of the quarter)
+grow_sav <- growth %>%
+  mutate(
+    month = (Qrtr - 1) * 3 + 1,                     # 1, 4, 7, 10
+    ds = as.Date(paste(Year, month, 1, sep = "-"))
+  ) %>%
+  select(ds, y = Savings)
+
+# Fit Prophet
+proph_sav <- prophet(grow_sav)
+
+
+sav_pred <- predict(proph_sav, future_2025)$yhat
+
+sav_pred
+
+```
+
+```{r}
+
+# Convert Year + Qrtr to a proper quarterly date (first day of the quarter)
+grow_unem <- growth %>%
+  mutate(
+    month = (Qrtr - 1) * 3 + 1,                     # 1, 4, 7, 10
+    ds = as.Date(paste(Year, month, 1, sep = "-"))
+  ) %>%
+  select(ds, y = Unemployment)
+
+# Fit Prophet
+proph_unem <- prophet(grow_unem)
+
+
+unem_pred <- predict(proph_unem, future_2025)$yhat
+
+unem_pred
+
+
 ```
