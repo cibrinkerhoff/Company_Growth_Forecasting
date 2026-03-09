@@ -9,5 +9,53 @@ editor: visual
 library(forecast)
 library(tidyverse)
 
-groth <- vroom::vroom("CompanyGrowth.csv")
+growth <- vroom::vroom("CompanyGrowth.csv")
+```
+
+```{r}
+library(patchwork)
+
+gg_inc <-growth %>%
+  ggplot(aes(x = Year+((Qrtr-1)*0.25), y = Income))+
+  geom_point()+
+  geom_smooth(method = 'lm')
+
+gg_prod <-growth %>%
+  ggplot(aes(x = Year+((Qrtr-1)*0.25), y = Production))+
+  geom_point()+
+  geom_smooth(method = 'lm')
+
+gg_sav<-growth %>%
+  ggplot(aes(x = Year+((Qrtr-1)*0.25), y = Savings))+
+  geom_point()+
+  geom_smooth(method = 'lm')
+
+gg_unem <-growth %>%
+  ggplot(aes(x = Year+((Qrtr-1)*0.25), y = Unemployment))+
+  geom_point()+
+  geom_smooth(method = 'lm')
+
+gg_inc + gg_prod + gg_sav + gg_unem
+```
+
+```{r}
+
+vars_lst <- list(growth$Income, growth$Production, growth$Savings, growth$Unemployment)
+
+for (i in 1:4){acf(vars_lst[[i]])}
+
+
+```
+
+```{r}
+growth$Time <- growth$Year+((growth$Qrtr-1)*0.25)
+
+X_noInt <- model.matrix( ~ bs(Time, knots = cuts, degree = 3)+dow + Year + mon, data = yt_feature)[,-1]
+
+S <- 365
+ts_data <- ts(data = log(yt_feature$MinutesViewed),
+              frequency = S)
+
+arima_mdl <- forecast::auto.arima(y = ts_data,
+                        xreg = X_noInt)
 ```
