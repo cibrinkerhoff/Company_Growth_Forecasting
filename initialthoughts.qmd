@@ -1,0 +1,19 @@
+---
+title: "Assignment thoughts"
+format: html
+editor: visual
+---
+
+1.  EDA
+2.  Make model and line assumptions. predict with RMSE
+3.  arima, splines?
+4.  predict using forecasting???
+5.  
+
+forecast 2025 predictions for explanatory models
+
+I need to make splines model
+
+rmse aic bic
+
+test is 2022 onward

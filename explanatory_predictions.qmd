@@ -1,0 +1,13 @@
+---
+title: "predictors2025"
+format: pdf
+editor: visual
+---
+
+```{r}
+
+library(forecast)
+library(tidyverse)
+
+groth <- vroom::vroom("CompanyGrowth.csv")
+```
