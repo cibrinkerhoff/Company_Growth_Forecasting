@@ -1,5 +1,5 @@
 
-
+library(tidyverse)
 library(splines)
 
 growth <- vroom::vroom("CompanyGrowth.csv")
@@ -23,7 +23,6 @@ train %>%
   ggplot(aes(x = (Year+((Qrtr-1)*0.25)), y = PctGrowth))+
   geom_point()+
   geom_line(aes(y = spline_pred_train), color = "red")+
-  abline(v = 1992)+
   labs(
     title = "Spline Fit"
   )
