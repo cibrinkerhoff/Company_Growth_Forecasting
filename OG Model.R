@@ -9,7 +9,7 @@ growth$Year <- as.integer(growth$Year)
 
 # --- Train/Test split ---
 train <- subset(growth, Year < 2022)
-test  <- subset(growth, Year >= 2022 & Year <= 2024)
+test  <- subset(growth, Year >= 2022)
 
 # --- Fit model on TRAIN only ---
 lm_growth <- lm(PctGrowth ~ Income + Production + Savings + Unemployment, data = train)
