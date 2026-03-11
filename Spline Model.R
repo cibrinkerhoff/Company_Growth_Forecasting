@@ -58,3 +58,15 @@ test$PredictedGrowth <- predict(lm_spline, newdata = test)
 mse <- mean((test$PctGrowth - test$PredictedGrowth)^2)
 cat("Mean Squared Error:", mse, "\n")
 
+
+
+test_2025 <- test[1,]
+test_2025$Year <- 2025
+test_2025$Qrtr <- 1
+test_2025$Income <- inc_pred
+test_2025$Production <- prod_pred
+test_2025$Savings <- sav_pred
+test_2025$Unemployment <- unem_pred
+
+test_2025$PredictedGrowth <- predict(lm_spline, newdata = test_2025)
+cat("Predicted Growth for 2025 Q1:", test_2025$PredictedGrowth, "\n")
