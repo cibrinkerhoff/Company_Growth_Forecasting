@@ -59,6 +59,7 @@ mse <- mean((test$PctGrowth - test$PredictedGrowth)^2)
 cat("Mean Squared Error:", mse, "\n")
 
 
+lm_spline_full_data <- lm(PctGrowth ~ bs(Year+((Qrtr-1)*0.25), knots = cuts, degree = 3)+Income + Production + Savings + Unemployment, data = growth)
 
 test_2025 <- test[1,]
 test_2025$Year <- 2025
@@ -68,5 +69,36 @@ test_2025$Production <- prod_pred
 test_2025$Savings <- sav_pred
 test_2025$Unemployment <- unem_pred
 
-test_2025$PredictedGrowth <- predict(lm_spline, newdata = test_2025)
+test_2025$PredictedGrowth <- predict(lm_spline_full_data, newdata = test_2025)
 cat("Predicted Growth for 2025 Q1:", test_2025$PredictedGrowth, "\n")
+
+
+###############
+
+grow_growth <- train %>%
+  mutate(
+    month = (Qrtr - 1) * 3 + 1,                     # 1, 4, 7, 10
+    ds = as.Date(paste(Year, month, 1, sep = "-"))
+  ) %>%
+  select(ds, y = PctGrowth)
+
+
+grow_growth_test <- test %>%
+  mutate(
+    month = (Qrtr - 1) * 3 + 1,                     # 1, 4, 7, 10
+    ds = as.Date(paste(Year, month, 1, sep = "-"))
+  ) %>%
+  select(ds, y = PctGrowth)
+# Fit Prophet
+proph_growth <- prophet(grow_growth)
+
+
+proph_pred <- predict(proph_growth, grow_growth_test)$yhat
+
+test_rmse <- sqrt(mean((test$PctGrowth - prod_pred)^2, na.rm = TRUE))
+
+
+
+
+
+future_2025 <- tibble(ds = as.Date("2025-01-01"))

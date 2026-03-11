@@ -103,4 +103,38 @@ print(results)
 cat("\nPredicted Percent Growth Values:\n")
 cat(results$Predicted_PctGrowth, "\n")
 
+################
+
+m <- prophet(yearly.seasonality  = FALSE,   # annual data – no intra-year cycles
+             weekly.seasonality  = FALSE,
+             daily.seasonality   = FALSE,
+             seasonality.mode    = "additive")
+
+# Add each explanatory variable as an extra regressor
+m <- add_regressor(m, "Income")
+m <- add_regressor(m, "Production")
+m <- add_regressor(m, "Savings")
+m <- add_regressor(m, "Unemployment")
+
+# Fit on training data (must include ds, y, and all regressors)
+m <- fit.prophet(m, growth_prophet %>% select(ds, y, Income, Production, Savings, Unemployment))
+
+future_forecast <- predict(m, future_data)
+
+# Prophet's built-in uncertainty intervals (yhat_lower / yhat_upper)
+results <- future_data %>%
+  mutate(
+    Year                = future_years,
+    Predicted_PctGrowth = round(future_forecast$yhat,       3),
+    Lower_95CI          = round(future_forecast$yhat_lower, 3),
+    Upper_95CI          = round(future_forecast$yhat_upper, 3)
+  ) %>%
+  select(Year, Income, Production, Savings, Unemployment,
+         Predicted_PctGrowth, Lower_95CI, Upper_95CI)
+
+cat("=== Future Predictions ===\n")
+print(results)
+
+cat("\nPredicted Percent Growth Values:\n")
+cat(results$Predicted_PctGrowth, "\n")
 

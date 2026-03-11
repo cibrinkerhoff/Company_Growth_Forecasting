@@ -50,6 +50,8 @@ future_data <- data.frame(
   Production   = prod_pred,
   Savings      = sav_pred
 )
+lm_growth <- lm(PctGrowth ~ Income + Production + Savings + Unemployment, data = growth)
+
 
 # Predict PctGrowth using the trained model
 future_predictions <- predict(lm_growth, newdata = future_data, interval = "prediction", level = 0.95)
