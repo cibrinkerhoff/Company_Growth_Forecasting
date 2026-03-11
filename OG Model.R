@@ -33,3 +33,35 @@ cat(
   "Train RMSE:", round(train_rmse, 3), "\n",
   "Test RMSE (2022–2024):", round(test_rmse, 3), "\n"
 )
+
+
+#Predicted values 
+unem_pred
+inc_pred
+prod_pred
+sav_pred
+
+
+# --- Future Predictions using your pre-defined predictor values ---
+# Build a new data frame from your forecast variables
+future_data <- data.frame(
+  Unemployment = unem_pred,
+  Income       = inc_pred,
+  Production   = prod_pred,
+  Savings      = sav_pred
+)
+
+# Predict PctGrowth using the trained model
+future_predictions <- predict(lm_growth, newdata = future_data, interval = "prediction", level = 0.95)
+
+# Combine inputs with predicted output
+results <- cbind(future_data, as.data.frame(future_predictions))
+colnames(results)[colnames(results) == "fit"]  <- "Predicted_PctGrowth"
+colnames(results)[colnames(results) == "lwr"]  <- "Lower_95CI"
+colnames(results)[colnames(results) == "uwr"]  <- "Upper_95CI"
+
+# Print results
+print(results)
+
+cat("\nPredicted Percent Growth Values:\n")
+cat(round(results$Predicted_PctGrowth, 3), "\n")
